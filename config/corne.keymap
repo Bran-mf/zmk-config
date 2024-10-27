@@ -1,108 +1,56 @@
-#include QMK_KEYBOARD_H
+/*
+ * Copyright (c) 2020 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
-// Layer names
-enum custom_layers {
-    _BASE,
-    _SYMBOL,
-    _NAV,
-    _FUNC,
-};
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
 
-// Custom keycodes
-enum custom_keycodes {
-    KC_CTC = SAFE_RANGE,  // Macro: Ctrl + C (copy)
-    KC_CTV,               // Macro: Ctrl + V (paste)
-};
+/ {
+        keymap {
+                compatible = "zmk,keymap";
 
-// Macros for commonly used shortcuts
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case KC_CTC:
-            if (record->event.pressed) {
-                tap_code16(C(KC_C));  // Ctrl + C
-            }
-            return false;
-        case KC_CTV:
-            if (record->event.pressed) {
-                tap_code16(C(KC_V));  // Ctrl + V
-            }
-            return false;
-    }
-    return true;
-}
+                default_layer {
+// -----------------------------------------------------------------------------------------
+// |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BSPC |
+// | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |  '   |
+// | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  /  | ESC  |
+//                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
+                        bindings = <
+   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
+   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
+   &kp LSHFT &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
+                  &kp LGUI &mo 1 &kp SPACE   &kp RET &mo 2 &kp RALT
+                        >;
+                };
+                lower_layer {
+// -----------------------------------------------------------------------------------------
+// |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BSPC |
+// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LFT | DWN |  UP | RGT |     |      |
+// | SHFT |     |     |     |     |     |   |     |     |     |     |     |      |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
+                        bindings = <
+   &kp TAB    &kp N1       &kp N2       &kp N3       &kp N4       &kp N5         &kp N6   &kp N7   &kp N8 &kp N9    &kp N0 &kp BSPC
+   &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &kp LEFT &kp DOWN &kp UP &kp RIGHT &trans &trans
+   &kp LSHFT  &trans       &trans       &trans       &trans       &trans         &trans   &trans   &trans &trans    &trans &trans
+                                    &kp LGUI     &trans       &kp SPACE      &kp RET  &trans   &kp RALT
+                        >;
+                };
 
-// Layer definitions
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-
-    /* Base Layer
-     * ,-----------------------------------------.                    ,-----------------------------------------.
-     * |  Q   |  W   |  E   |  R   |  T   | [SY] |                    | [SY] |  Y   |  U   |  I   |  O   |  P   |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |  A   |  S   |  D   |  F   |  G   |      |                    |      |  H   |  J   |  K   |  L   | ; :  |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |  Z   |  X   |  C   |  V   |  B   | [FN] |                    | [FN] |  N   |  M   | , <  | . >  | / ?  |
-     * `-----------------------------------------'                    `-----------------------------------------'
-     *              | Ctrl | Alt  | Esc  | [NA] | [SP] |      | [SP] | [NA] | Tab  | Cmd  |
-     *              `----------------------------------'      `----------------------------------'
-     */
-    [_BASE] = LAYOUT_split_3x6_3(
-        KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    MO(_SYMBOL),   MO(_SYMBOL), KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,
-        KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    _______,       _______,     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN,
-        KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    MO(_FUNC),     MO(_FUNC),   KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,
-                                   KC_LCTL, KC_LALT, KC_ESC,        LT(_NAV, KC_SPC), LT(_NAV, KC_TAB), KC_LGUI
-    ),
-
-    /* Symbol Layer
-     * ,-----------------------------------------.                    ,-----------------------------------------.
-     * |  !   |  @   |  {   |  }   |  |   |      |                    |      |  ^   |  &   |  *   |  (   |  )   |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |  #   |  $   |  [   |  ]   |  ~   |      |                    |      |  -   |  +   |  =   |  \   |  "   |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |  %   |  `   |  <   |  >   |  '   |      |                    |      |  _   |  :   |  ;   |  ?   |  /   |
-     * `-----------------------------------------'                    `-----------------------------------------'
-     *              |      |      |      |      |      |      |      |      |      |      |
-     *              `----------------------------------'      `----------------------------------'
-     */
-    [_SYMBOL] = LAYOUT_split_3x6_3(
-        KC_EXLM, KC_AT,   KC_LCBR, KC_RCBR, KC_PIPE, _______,       _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,
-        KC_HASH, KC_DLR,  KC_LBRC, KC_RBRC, KC_TILD, _______,       _______, KC_MINS, KC_PLUS, KC_EQL,  KC_BSLS, KC_DQUO,
-        KC_PERC, KC_GRV,  KC_LT,   KC_GT,   KC_QUOT, _______,       _______, KC_UNDS, KC_COLN, KC_SCLN, KC_QUES, KC_SLSH,
-                                   _______, _______, _______,       _______, _______, _______
-    ),
-
-    /* Navigation Layer
-     * ,-----------------------------------------.                    ,-----------------------------------------.
-     * |      |      | Home | End  |      |      |                    |      | PgUp |  Up  | PgDn |      |      |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |      |      | Left | Down | Right|      |                    |      | Left | Down | Right|      |      |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |      |      |      |      |      |      |                    |      | Mute | Vol- | Vol+ |      |      |
-     * `-----------------------------------------'                    `-----------------------------------------'
-     *              |      |      |      |      |      |      |      |      |      |      |
-     *              `----------------------------------'      `----------------------------------'
-     */
-    [_NAV] = LAYOUT_split_3x6_3(
-        _______, _______, KC_HOME, KC_END,  _______, _______,       _______, KC_PGUP, KC_UP,   KC_PGDN, _______, _______,
-        _______, _______, KC_LEFT, KC_DOWN, KC_RGHT, _______,       _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______,
-        _______, _______, _______, _______, _______, _______,       _______, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______,
-                                   _______, _______, _______,       _______, _______, _______
-    ),
-
-    /* Function Layer
-     * ,-----------------------------------------.                    ,-----------------------------------------.
-     * | F1   | F2   | F3   | F4   | F5   | F6   |                    | F7   | F8   | F9   | F10  | F11  | F12  |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
-     * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
-     * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
-     * `-----------------------------------------'                    `-----------------------------------------'
-     *              |      |      |      |      |      |      |      |      |      |      |
-     *              `----------------------------------'      `----------------------------------'
-     */
-    [_FUNC] = LAYOUT_split_3x6_3(
-        KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,         KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-        _______, _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______, _______,
-                                   _______, _______, _______,       _______, _______, _______
-    )
+                raise_layer {
+// -----------------------------------------------------------------------------------------
+// |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BSPC |
+// | CTRL |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  \  |  `   |
+// | SHFT |     |     |     |     |     |   |  _  |  +  |  {  |  }  | "|" |  ~   |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
+                        bindings = <
+   &kp  TAB  &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT   &kp CARET &kp AMPS  &kp ASTRK &kp LPAR &kp RPAR &kp BSPC
+   &kp LCTRL &trans   &trans &trans   &trans   &trans      &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT &kp BSLH &kp GRAVE
+   &kp LSHFT &trans   &trans &trans   &trans   &trans      &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC &kp PIPE &kp TILDE
+                             &kp LGUI &trans   &kp SPACE   &kp RET   &trans    &kp RALT
+                        >;
+                };
+        };
 };
